@@ -1,0 +1,3 @@
+module.exports = {
+    mongoURI: "mongodb://kode:kode123@ds259820.mlab.com:59820/mern_shopping"
+}

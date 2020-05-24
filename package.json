@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "shopping list built with MERN stack",
   "main": "server.js",
+  "engine": {
+    "node": "13.7.0",
+    "npm": "6.13.7"
+  },
   "scripts": {
     "client-install": "npm install --prefix client",
     "test": "echo \"Error: no test specified\" && exit 1",

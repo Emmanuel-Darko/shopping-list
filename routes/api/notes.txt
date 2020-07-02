@@ -1,0 +1,4 @@
+* Database item collection for every user
+* Authenticate logout
+* Update profile
+* Add graphql if necessary

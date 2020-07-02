@@ -10,18 +10,53 @@ import {
     Input
 } from 'reactstrap';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 // import { v4 as uuid} from 'uuid';
-import { addItem } from '../actions/itemActions';
+import { addItem, updateItem } from '../actions/itemActions';
 
 class ItemModal extends Component {
     state = { 
         modal: false,
-        name: ''
+        name: null,
+        uid: null,  //updated id
+        uname: null //updated name
     }
 
-    toggle = () => {
+    static propTypes = {
+        update: PropTypes.object.isRequired,
+        isAuthenticated: PropTypes.bool,
+        addItem: PropTypes.func.isRequired,
+        updateItem: PropTypes.func.isRequired
+    }
+
+    UNSAFE_componentWillReceiveProps(nextProps){
+        if(nextProps.update.id !== this.props.update.id)
+            this.toggle(nextProps)         // toggles if update icon is clicked
+    }
+
+    toggle = (x) => {                      //custom update toggler
+        if(this.state.modal === true){     //if modal is already opened
+            this.setState({
+                modal: !this.state.modal, //close modal
+                uid: null,                //set null uid
+                uname: null,
+                name: null                  //set name to null
+            })
+        }else{
+            this.setState({               //if modal is closed
+                modal: !this.state.modal, //open modal
+                uid: x.update.id,         //set uid to update id
+                uname: x.update.name
+            })
+        }
+    }
+
+    toggle2 = () => {                     //add item toggler
         this.setState({
-            modal: !this.state.modal
+            modal: !this.state.modal,
+            uid: null,
+            uname: null,
+            name: null
         })
     }
 
@@ -34,33 +69,47 @@ class ItemModal extends Component {
         e.preventDefault();
 
         const newItem = {
-            // id: uuid(),
+            id: this.state.uid,
             name: this.state.name
         }
         
-        // Add item via add_item action
-        this.props.addItem(newItem);
+        if(this.state.uid === null){
+            // Add item via add_item action
+            this.props.addItem(newItem);
+        }else{
+            // update item
+            if(this.state.name !== null)            //check to see if item was changed
+                this.props.updateItem(newItem);
+            else
+                this.toggle2()
+        }
 
         // close modal
-        this.toggle()
+        this.toggle2()
     }
 
     render(){
+        const { isAuthenticated } = this.props;
         return(
             <div>
-                <Button
-                    color="dark"
-                    style={{marginBottom: '2rem'}}
-                    onClick={this.toggle}
-                >
-                    Add Item
-                </Button>
+                { isAuthenticated ? 
+                    <Button
+                        color="dark"
+                        style={{marginBottom: '2rem'}}
+                        onClick={this.toggle2}
+                    >
+                        Add Item
+                    </Button>
+                    : <h4 className="mb-3 ml-4">Please login to manage Items</h4>
+                }
 
                 <Modal
                     isOpen={this.state.modal}
-                    toggle={this.toggle}
+                    toggle={this.toggle2}
                 >
-                    <ModalHeader toggle={this.toggle}>Add To Shopping List</ModalHeader>
+                    <ModalHeader toggle={this.toggle2}>
+                        { this.state.uid === null ? 'Add To Shopping List' : 'Update Item'}
+                    </ModalHeader>
                     <ModalBody>
                         <Form onSubmit={this.onSubmit}>
                             <FormGroup>
@@ -69,6 +118,7 @@ class ItemModal extends Component {
                                     type="text"
                                     name="name"
                                     id="item"
+                                    defaultValue={this.state.uname}
                                     placeholder="Add shopping Item"
                                     onChange ={this.onChange}
                                 />
@@ -77,7 +127,7 @@ class ItemModal extends Component {
                                     style = {{marginTop: '2rem'}}
                                     block
                                 >
-                                    Add Item
+                                    { this.state.uid === null ? 'Add Item' : 'Update Item'}
                                 </Button>
                             </FormGroup>
                         </Form>
@@ -89,7 +139,8 @@ class ItemModal extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    items: state.item.items
+    update: state.item.update,
+    isAuthenticated: state.auth.isAuthenticated
 })
 
-export default connect(mapStateToProps,{ addItem })(ItemModal);
+export default connect(mapStateToProps,{ addItem, updateItem })(ItemModal);

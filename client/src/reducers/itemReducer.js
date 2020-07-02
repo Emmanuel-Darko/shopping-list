@@ -1,14 +1,19 @@
-import { GET_ITEMS, ADD_ITEM, DELETE_ITEM, ITEMS_LOADING} from '../actions/constants';
+import { GET_ITEMS, ADD_ITEM, DELETE_ITEM, SET_UPDATE_ITEM, UPDATE_ITEM, ITEMS_LOADING} from '../actions/constants';
 
 const initialState = {
     items: [],
-    loading: false
+    loading: false,
+    update: {
+        id: '',
+        name: ''
+    }
 }
 
 const itemReducer = (state=initialState, action={})  => {
-    console.log(action.payload)
+    // console.log(action.payload)
     switch(action.type){
         case GET_ITEMS:
+            // console.log(state)
             return {
                 ...state,
                 items: action.payload,
@@ -19,7 +24,7 @@ const itemReducer = (state=initialState, action={})  => {
             return{
                 ...state,
                 items: [action.payload, ...state.items]
-        }
+            }
         
         case DELETE_ITEM:
             return{
@@ -27,6 +32,17 @@ const itemReducer = (state=initialState, action={})  => {
                 items: state.items.filter((item) => item._id !== action.payload)
             }
 
+        case SET_UPDATE_ITEM:
+            return{
+                ...state,
+                update: {id: action.id, name: action.name}
+        }
+
+        case UPDATE_ITEM:
+            return{
+                ...state,
+                items: action.payload
+        }
 
         case ITEMS_LOADING:
             return{
